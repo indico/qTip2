@@ -1,12 +1,12 @@
 /*
- * qTip2 - Pretty powerful tooltips - v3.0.3
+ * qTip2 - Pretty powerful tooltips - v3.0.3-7-g
  * http://qtip2.com
  *
- * Copyright (c) 2016 
+ * Copyright (c) 2019 
  * Released under the MIT licenses
  * http://jquery.org/license
  *
- * Date: Wed May 11 2016 10:31 GMT+0100+0100
+ * Date: Thu Mar 21 2019 10:58 GMT+0100+0100
  * Plugins: tips modal viewport svg imagemap ie6
  * Styles: core basic css3
  */
@@ -1419,23 +1419,27 @@ PROTOTYPE._trigger = function(type, args, event) {
 
 PROTOTYPE._bindEvents = function(showEvents, hideEvents, showTargets, hideTargets, showCallback, hideCallback) {
 	// Get tasrgets that lye within both
-	var similarTargets = showTargets.filter( hideTargets ).add( hideTargets.filter(showTargets) ),
-		toggleEvents = [];
+	var similarTargets = showTargets.filter(hideTargets).add(hideTargets.filter(showTargets)),
+			toggleEvents = [];
 
 	// If hide and show targets are the same...
-	if(similarTargets.length) {
-
+	if (similarTargets.length) {
 		// Filter identical show/hide events
-		$.each(hideEvents, function(i, type) {
-			var showIndex = $.inArray(type, showEvents);
+		var allEvents = Array.from(new Set([hideEvents].concat(showEvents)));
+		toggleEvents = allEvents.filter(function(eventName) {
+			var indexInShowEvents = showEvents.indexOf(eventName);
+			var indexInHideEvents = hideEvents.indexOf(eventName);
 
-			// Both events are identical, remove from both hide and show events
-			// and append to toggleEvents
-			showIndex > -1 && toggleEvents.push( showEvents.splice( showIndex, 1 )[0] );
+			if (indexInHideEvents !== -1 && indexInShowEvents !== -1) {
+				showEvents.splice(indexInShowEvents, 1);
+				hideEvents.splice(indexInHideEvents, 1);
+				return true;
+			}
+			return false;
 		});
 
 		// Toggle events are special case of identical show/hide events, which happen in sequence
-		if(toggleEvents.length) {
+		if (toggleEvents.length) {
 			// Bind toggle events to the similar targets
 			this._bind(similarTargets, toggleEvents, function(event) {
 				var state = this.rendered ? this.tooltip[0].offsetWidth > 0 : false;
@@ -1775,7 +1779,7 @@ function init(elem, id, opts) {
 
 	// Remove title attribute and store it if present
 	if(config.suppress && (title = elem.attr('title'))) {
-		// Final attr call fixes event delegatiom and IE default tooltip showing problem
+		// Final attr call fixes event delegation and IE default tooltip showing problem
 		elem.removeAttr('title').attr(oldtitle, title).attr('title', '');
 	}
 
@@ -1931,7 +1935,7 @@ if(!$.ui) {
 	};
 }
 ;// qTip version
-QTIP.version = '3.0.3';
+QTIP.version = '3.0.3-7-g';
 
 // Base ID for all qTips
 QTIP.nextid = 0;

@@ -121,23 +121,27 @@ PROTOTYPE._trigger = function(type, args, event) {
 
 PROTOTYPE._bindEvents = function(showEvents, hideEvents, showTargets, hideTargets, showCallback, hideCallback) {
 	// Get tasrgets that lye within both
-	var similarTargets = showTargets.filter( hideTargets ).add( hideTargets.filter(showTargets) ),
-		toggleEvents = [];
+	var similarTargets = showTargets.filter(hideTargets).add(hideTargets.filter(showTargets)),
+			toggleEvents = [];
 
 	// If hide and show targets are the same...
-	if(similarTargets.length) {
-
+	if (similarTargets.length) {
 		// Filter identical show/hide events
-		$.each(hideEvents, function(i, type) {
-			var showIndex = $.inArray(type, showEvents);
+		var allEvents = Array.from(new Set([hideEvents].concat(showEvents)));
+		toggleEvents = allEvents.filter(function(eventName) {
+			var indexInShowEvents = showEvents.indexOf(eventName);
+			var indexInHideEvents = hideEvents.indexOf(eventName);
 
-			// Both events are identical, remove from both hide and show events
-			// and append to toggleEvents
-			showIndex > -1 && toggleEvents.push( showEvents.splice( showIndex, 1 )[0] );
+			if (indexInHideEvents !== -1 && indexInShowEvents !== -1) {
+				showEvents.splice(indexInShowEvents, 1);
+				hideEvents.splice(indexInHideEvents, 1);
+				return true;
+			}
+			return false;
 		});
 
 		// Toggle events are special case of identical show/hide events, which happen in sequence
-		if(toggleEvents.length) {
+		if (toggleEvents.length) {
 			// Bind toggle events to the similar targets
 			this._bind(similarTargets, toggleEvents, function(event) {
 				var state = this.rendered ? this.tooltip[0].offsetWidth > 0 : false;
